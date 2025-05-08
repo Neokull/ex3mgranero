@@ -4,17 +4,17 @@ require_once "autoload.php";
 class lamp{
     protected $id;
     protected $name;
-    protected $state;
-    protected $domain;
-    protected $power;
+    protected $on;
+    protected $model;
+    protected $wattage;
     protected $zone;
 
-    function __construct($id, $name, $state, $domain, $power, $zone){
+    function __construct($id, $name, $on, $model, $wattage, $zone){
         $this->id = $id;
         $this->name = $name;
-        $this->state = $state;
-        $this->domain = $domain;
-        $this->power = $power;
+        $this->on = $on;
+        $this->model = $model;
+        $this->wattage = $wattage;
         $this->zone = $zone;
     }
 
@@ -29,23 +29,22 @@ class lamp{
         return $this->name;
     }
 
-    public function getState()
+    public function getOn()
     {
-        return $this->state;
+        return $this->on;
     }
 
     
-    public function getDomain()
+    public function getModels()
     {
-        return $this->domain;
+        return $this->model;
     }
 
     
-    public function getPower()
+    public function getWattage()
     {
-        return $this->power;
+        return $this->wattage;
     }
-
     
     public function getZone()
     {
