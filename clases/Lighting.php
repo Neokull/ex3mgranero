@@ -27,26 +27,33 @@ class Lighting extends Connection
         return $lamps;
     }
 
-    function drawLampsList()
-    {
-        $lamps = $this->getAllLamps();
-        $html = '';
+function drawLampsList()
+{
+    $lamps = $this->getAllLamps();
+    $html = '';
 
-        foreach ($lamps as $lamp) {
-            $statusClass = $lamp->getOn() ? 'on' : 'off';
-            $imageSrc = $lamp->getOn() ? 'img/bulb-icon-on.png' : 'img/bulb-icon-off.png';
-            $newStatus = $lamp->getOn() ? 'off' : 'on';
-            $lampId = $lamp->getId();
+    foreach ($lamps as $lamp) {
+        $currentStatus = $lamp->getOn() ? 1 : 0;
+        $newStatus     = $currentStatus ? 0 : 1;
 
-            $html .= '<div class="element ' . $statusClass . '">';
-            $html .= '<h4><a href="changestatus.php?id=' . $lampId . '&status=' . $newStatus . '"><img src="' . $imageSrc . '"></a> ' . $lamp->getName() . '</h4>';
-            $html .= '<h1>' . $lamp->getWattage() . ' W.</h1>';
-            $html .= '<h4>' . $lamp->getZone() . '</h4>';
-            $html .= '</div>';
-        }
+        $statusClass = $currentStatus ? 'on' : 'off';
+        $imageSrc    = $currentStatus ? 'img/bulb-icon-on.png' : 'img/bulb-icon-off.png';
+        $lampId      = $lamp->getId();
 
-        return $html;
+        $html .= '<div class="element ' . $statusClass . '">';
+        $html .= '<h4>';
+        $html .= '<a href="changestatus.php?id=' . $lampId . '&status=' . $newStatus . '">';
+        $html .= '<img src="' . $imageSrc . '" alt="bulb">';
+        $html .= '</a> ';
+        $html .= htmlspecialchars($lamp->getName(), ENT_QUOTES, 'UTF-8');
+        $html .= '</h4>';
+        $html .= '<h1>' . (int)$lamp->getWattage() . ' W.</h1>';
+        $html .= '<h4>' . htmlspecialchars($lamp->getZone(), ENT_QUOTES, 'UTF-8') . '</h4>';
+        $html .= '</div>';
     }
+
+    return $html;
+}
 
     public function getPower()
     {
@@ -75,4 +82,14 @@ class Lighting extends Connection
         $html .= '</ul>' . '<h3>Total potencia estadio:</h3>' . '<span>' . array_sum($this->getPower())  . ' W'. '</span>';
         return $html;
     }
+
+    public function changeStatus($id, $status)
+    {
+        $sql = 'UPDATE lamps SET lamp_on = :status WHERE lamp_id = :id';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':status', $status, PDO::PARAM_INT);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
 }
