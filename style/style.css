@@ -55,3 +55,9 @@ h1 {
 form {
     text-align: center;
 }
+
+span {
+    margin-left: 22px;
+    font-weight: bold;
+    font-size: 1.2em;
+}

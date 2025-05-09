@@ -72,7 +72,7 @@ class Lighting extends Connection
             $html .= '<li><strong>' . $zone . ':</strong> ' . $power . '</li>';
         }
 
-        $html .= '</ul>';
+        $html .= '</ul>' . '<h3>Total potencia estadio:</h3>' . '<span>' . array_sum($this->getPower())  . ' W'. '</span>';
         return $html;
     }
 }
