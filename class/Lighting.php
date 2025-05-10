@@ -3,21 +3,37 @@ require_once "autoload.php";
 
 class Lighting extends Connection
 {
-    private $currentFilter = 'all';
+    protected $currentFilter;
 
-    public function setCurrentFilter($filter)
-{
-    $this->currentFilter = $filter;
-}
+
+    function __construct()
+    {
+        parent::__construct();
+        $this->currentFilter = $_POST['filter'] ?? 'ALL';
+    }
+
+    public function getCurrentFilter()
+    {
+        return $this->currentFilter;
+    }
 
     public function getAllLamps()
     {
         $lamps = [];
 
-        $sql = "SELECT lamps.lamp_id, lamps.lamp_name, lamp_on, lamp_models.model_part_number,lamp_models.model_wattage, zones.zone_name FROM lamps INNER JOIN lamp_models ON lamps.lamp_model=lamp_models.model_id INNER JOIN zones ON lamps.lamp_zone = zones.zone_id ORDER BY lamps.lamp_id";
+        $sql = "SELECT lamps.lamp_id, lamps.lamp_name, lamp_on, lamp_models.model_part_number,lamp_models.model_wattage, zones.zone_name FROM lamps INNER JOIN lamp_models ON lamps.lamp_model=lamp_models.model_id INNER JOIN zones ON lamps.lamp_zone = zones.zone_id";
+
+        $params = [];
+
+        if ($this->currentFilter !== 'ALL' && is_numeric($this->currentFilter)) {
+            $sql .= " WHERE lamps.lamp_zone = :zone_id";
+            $params[':zone_id'] = $this->currentFilter;
+        }
+
+        $sql .= " ORDER BY lamps.lamp_id";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute($params);
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $lamp = new Lamp(
@@ -33,7 +49,6 @@ class Lighting extends Connection
 
         return $lamps;
     }
-
 
     function drawLampsList()
     {
@@ -102,16 +117,19 @@ class Lighting extends Connection
 
     public function drawZonesOptions()
     {
-        $sql = "SELECT zone_id, zone_name FROM zones";
+        $sql = "SELECT zone_id, zone_name FROM zones ORDER BY zone_name ASC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
 
-        $options = '';
+
+        $selectedAll = ($this->currentFilter === 'ALL') ? 'selected' : '';
+        $options = '<option value="ALL" ' . $selectedAll . '>All</option>';
+
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $options .=  '<option value="' . htmlspecialchars($row['zone_id'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($row['zone_name'], ENT_QUOTES, 'UTF-8') . '</option>';
+            $selectedCurrent = ($this->currentFilter == $row['zone_id']) ? 'selected' : '';
+            $options .=  '<option value="' . htmlspecialchars($row['zone_id'], ENT_QUOTES, 'UTF-8') . '" ' . $selectedCurrent . '>'
+                . htmlspecialchars($row['zone_name'], ENT_QUOTES, 'UTF-8') . '</option>';
         }
-
-        return '<option value="TODOS">Todos</option>' . $options;
+        return $options;
     }
-
 }

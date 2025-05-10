@@ -19,7 +19,7 @@ $lighting = new Lighting()
     <div class="center">
         <h1>BIG STADIUM - LIGHTING CONTROL PANEL</h1>
         <h2><?= $lighting->drawMonitor() ?></h2>
-        <form action="" method="post">
+        <form action="index.php" method="post">
            <select name="filter">
            <?= $lighting->drawZonesOptions() ?>
             </select>
