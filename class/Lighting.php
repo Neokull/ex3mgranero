@@ -9,7 +9,13 @@ class Lighting extends Connection
     function __construct()
     {
         parent::__construct();
-        $this->currentFilter = $_POST['filter'] ?? 'ALL';
+
+        $this->currentFilter = $_SESSION['currentFilter'] ?? 'TODOS';
+
+        if (isset($_POST['filter'])) {
+            $this->currentFilter = $_POST['filter'];
+            $_SESSION['currentFilter'] = $this->currentFilter;
+        }
     }
 
     public function getCurrentFilter()
