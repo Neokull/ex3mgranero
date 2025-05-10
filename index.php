@@ -20,8 +20,8 @@ $lighting = new Lighting()
         <h1>BIG STADIUM - LIGHTING CONTROL PANEL</h1>
         <h2><?= $lighting->drawMonitor() ?></h2>
         <form action="" method="post">
-           <!--<select name="filter">
-           <= $lighting->drawZonesOptions() ?>      añadir ?entre < y =     -->
+           <select name="filter">
+           <?= $lighting->drawZonesOptions() ?>
             </select>
             <input type="submit" value="Filter by zone">
         </form>

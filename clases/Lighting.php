@@ -3,6 +3,13 @@ require_once "autoload.php";
 
 class Lighting extends Connection
 {
+    private $currentFilter = 'all';
+
+    public function setCurrentFilter($filter)
+{
+    $this->currentFilter = $filter;
+}
+
     public function getAllLamps()
     {
         $lamps = [];
@@ -27,33 +34,34 @@ class Lighting extends Connection
         return $lamps;
     }
 
-function drawLampsList()
-{
-    $lamps = $this->getAllLamps();
-    $html = '';
 
-    foreach ($lamps as $lamp) {
-        $currentStatus = $lamp->getOn() ? 1 : 0;
-        $newStatus     = $currentStatus ? 0 : 1;
+    function drawLampsList()
+    {
+        $lamps = $this->getAllLamps();
+        $html = '';
 
-        $statusClass = $currentStatus ? 'on' : 'off';
-        $imageSrc    = $currentStatus ? 'img/bulb-icon-on.png' : 'img/bulb-icon-off.png';
-        $lampId      = $lamp->getId();
+        foreach ($lamps as $lamp) {
+            $currentStatus = $lamp->getOn() ? 1 : 0;
+            $newStatus     = $currentStatus ? 0 : 1;
 
-        $html .= '<div class="element ' . $statusClass . '">';
-        $html .= '<h4>';
-        $html .= '<a href="changestatus.php?id=' . $lampId . '&status=' . $newStatus . '">';
-        $html .= '<img src="' . $imageSrc . '" alt="bulb">';
-        $html .= '</a> ';
-        $html .= htmlspecialchars($lamp->getName(), ENT_QUOTES, 'UTF-8');
-        $html .= '</h4>';
-        $html .= '<h1>' . (int)$lamp->getWattage() . ' W.</h1>';
-        $html .= '<h4>' . htmlspecialchars($lamp->getZone(), ENT_QUOTES, 'UTF-8') . '</h4>';
-        $html .= '</div>';
+            $statusClass = $currentStatus ? 'on' : 'off';
+            $imageSrc    = $currentStatus ? 'img/bulb-icon-on.png' : 'img/bulb-icon-off.png';
+            $lampId      = $lamp->getId();
+
+            $html .= '<div class="element ' . $statusClass . '">';
+            $html .= '<h4>';
+            $html .= '<a href="changestatus.php?id=' . $lampId . '&status=' . $newStatus . '">';
+            $html .= '<img src="' . $imageSrc . '" alt="bulb">';
+            $html .= '</a> ';
+            $html .= htmlspecialchars($lamp->getName(), ENT_QUOTES, 'UTF-8');
+            $html .= '</h4>';
+            $html .= '<h1>' . (int)$lamp->getWattage() . ' W.</h1>';
+            $html .= '<h4>' . htmlspecialchars($lamp->getZone(), ENT_QUOTES, 'UTF-8') . '</h4>';
+            $html .= '</div>';
+        }
+
+        return $html;
     }
-
-    return $html;
-}
 
     public function getPower()
     {
@@ -79,7 +87,7 @@ function drawLampsList()
             $html .= '<li><strong>' . $zone . ':</strong> ' . $power . '</li>';
         }
 
-        $html .= '</ul>' . '<h3>Total potencia estadio:</h3>' . '<span>' . array_sum($this->getPower())  . ' W'. '</span>';
+        $html .= '</ul>' . '<h3>Total potencia estadio:</h3>' . '<span>' . array_sum($this->getPower())  . ' W' . '</span>';
         return $html;
     }
 
@@ -90,6 +98,20 @@ function drawLampsList()
         $stmt->bindParam(':status', $status, PDO::PARAM_INT);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
+    }
+
+    public function drawZonesOptions()
+    {
+        $sql = "SELECT zone_id, zone_name FROM zones";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+
+        $options = '';
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $options .=  '<option value="' . htmlspecialchars($row['zone_id'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($row['zone_name'], ENT_QUOTES, 'UTF-8') . '</option>';
+        }
+
+        return '<option value="TODOS">Todos</option>' . $options;
     }
 
 }
